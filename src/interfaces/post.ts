@@ -8,6 +8,8 @@ export enum post_type {
 
 /** raw post data */
 export interface api_post {
+	/** attachments */
+	attachments?: string[];
 	/** is the post pinned */
 	pinned: boolean;
 	/** bridged post */
@@ -54,6 +56,7 @@ export interface post_report_options {
 /** check if a value is a post */
 export function is_api_post(obj: unknown): obj is api_post {
 	if (obj === null || typeof obj !== 'object') return false;
+	if ('attachments' in obj && !Array.isArray(obj.attachments)) return false;
 	if (!('pinned' in obj) || typeof obj.pinned !== 'boolean') return false;
 	if (('bridged' in obj) && typeof obj.bridged !== 'object') return false;
 	if (!('_id' in obj) || typeof obj._id !== 'string') return false;
@@ -76,22 +79,24 @@ export function is_api_post(obj: unknown): obj is api_post {
 }
 
 /** a post on meower */
-export class Post {
+export class post {
 	private api_url: string;
 	private api_token: string;
 	private raw: api_post;
+	/** attachments */
+	attachments?: string[];
 	/** post id */
 	id!: string;
 	/** whether the post in pinned */
 	pinned!: boolean;
 	/** bridged post, if any */
-	bridged?: Post;
+	bridged?: post;
 	/** is the post deleted */
 	deleted!: boolean;
 	/** post content */
 	content!: string;
-	/** post origin */
-	post_origin!: string;
+	/** post origin chat */
+	chat_id!: string;
 	/** timestamp in epoch seconds */
 	timestamp!: number;
 	/** post type */
@@ -110,10 +115,11 @@ export class Post {
 	}
 
 	private assign_data() {
+		this.attachments = this.raw.attachments;
 		this.id = this.raw._id;
 		this.pinned = this.raw.pinned;
 		this.bridged = this.raw.bridged
-			? new Post({
+			? new post({
 				api_token: this.api_token,
 				api_url: this.api_url,
 				data: this.raw.bridged,
@@ -121,7 +127,7 @@ export class Post {
 			: undefined;
 		this.deleted = this.raw.isDeleted;
 		this.content = this.raw.p;
-		this.post_origin = this.raw.post_origin;
+		this.chat_id = this.raw.post_origin;
 		this.timestamp = this.raw.t.e;
 		this.type = this.raw.type;
 		this.username = this.raw.u;
@@ -156,7 +162,7 @@ export class Post {
 
 		const data = await resp.json();
 
-		if (!resp.ok) {
+		if (!resp.ok || data.error) {
 			throw new Error('failed to pin post', {
 				cause: data,
 			});
@@ -178,7 +184,7 @@ export class Post {
 
 		const data = await resp.json();
 
-		if (!resp.ok) {
+		if (!resp.ok || data.error) {
 			throw new Error('failed to unpin post', {
 				cause: data,
 			});

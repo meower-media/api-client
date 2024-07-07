@@ -1,11 +1,11 @@
 import {
 	type api_chat,
-	Chat,
+	chat,
 	type chat_update_opts,
 	is_api_chat,
 } from '../interfaces/chat.ts';
-import { type api_post, Post } from '../interfaces/post.ts';
-import { type api_user, User } from '../interfaces/user.ts';
+import { type api_post, post } from '../interfaces/post.ts';
+import { type api_user, user } from '../interfaces/user.ts';
 
 /** statistics related to the meower server */
 export interface api_statistics {
@@ -30,7 +30,7 @@ export interface api_construction_opts {
 /** access to the meower rest api */
 export class rest_api {
 	/** the current user */
-	api_user: User;
+	api_user: user;
 	/** the api url */
 	api_url: string;
 	/** the api token */
@@ -40,7 +40,7 @@ export class rest_api {
 	private user_cache = new Map<string, api_user>();
 
 	constructor(opts: api_construction_opts) {
-		this.api_user = new User({
+		this.api_user = new user({
 			api_token: opts.token,
 			api_url: opts.api_url,
 			data: opts.account,
@@ -78,11 +78,11 @@ export class rest_api {
 	}
 
 	/** get a chat by id */
-	async get_chat(id: string): Promise<Chat> {
+	async get_chat(id: string): Promise<chat> {
 		const cached = this.chat_cache.get(id);
 
 		if (cached) {
-			return new Chat({
+			return new chat({
 				api_token: this.api_token,
 				api_url: this.api_url,
 				data: cached,
@@ -103,7 +103,7 @@ export class rest_api {
 
 		this.chat_cache.set(id, data);
 
-		return new Chat({
+		return new chat({
 			api_token: this.api_token,
 			api_url: this.api_url,
 			data,
@@ -111,7 +111,7 @@ export class rest_api {
 	}
 
 	/** get a list of chats */
-	async get_chats(): Promise<Chat[]> {
+	async get_chats(): Promise<chat[]> {
 		const resp = await fetch(`${this.api_url}/chats`, {
 			headers: {
 				token: this.api_token,
@@ -130,7 +130,7 @@ export class rest_api {
 		);
 
 		return data.autoget.map((i: api_chat) =>
-			new Chat({
+			new chat({
 				api_token: this.api_token,
 				api_url: this.api_url,
 				data: i,
@@ -141,7 +141,7 @@ export class rest_api {
 	/** create a chat */
 	async create_chat(
 		opts: chat_update_opts & { nickname: string; allow_pinning: boolean },
-	): Promise<Chat> {
+	): Promise<chat> {
 		const resp = await fetch(`${this.api_url}/chats`, {
 			method: 'POST',
 			headers: {
@@ -159,7 +159,7 @@ export class rest_api {
 
 		this.chat_cache.set(data._id, data);
 
-		return new Chat({
+		return new chat({
 			api_token: this.api_token,
 			api_url: this.api_url,
 			data,
@@ -167,11 +167,11 @@ export class rest_api {
 	}
 
 	/** get a post by id */
-	async get_post(id: string): Promise<Post> {
+	async get_post(id: string): Promise<post> {
 		const cached = this.post_cache.get(id);
 
 		if (cached) {
-			return new Post({
+			return new post({
 				api_token: this.api_token,
 				api_url: this.api_url,
 				data: cached,
@@ -192,7 +192,7 @@ export class rest_api {
 
 		this.post_cache.set(id, data);
 
-		return new Post({
+		return new post({
 			api_token: this.api_token,
 			api_url: this.api_url,
 			data,
@@ -200,11 +200,11 @@ export class rest_api {
 	}
 
 	/** get a user by id */
-	async get_user(id: string): Promise<User> {
+	async get_user(id: string): Promise<user> {
 		const cached = this.user_cache.get(id);
 
 		if (cached) {
-			return new User({
+			return new user({
 				api_token: this.api_token,
 				api_url: this.api_url,
 				data: cached,
@@ -225,7 +225,7 @@ export class rest_api {
 
 		this.user_cache.set(id, data);
 
-		return new User({
+		return new user({
 			api_token: this.api_token,
 			api_url: this.api_url,
 			data,
@@ -233,7 +233,7 @@ export class rest_api {
 	}
 
 	/** search for users */
-	async search_users(query: string, page: number = 1): Promise<User[]> {
+	async search_users(query: string, page: number = 1): Promise<user[]> {
 		const resp = await fetch(
 			`${this.api_url}/search/users/?autoget&q=${query}&page=${page}`,
 			{
@@ -250,7 +250,7 @@ export class rest_api {
 		}
 
 		return data.autoget.map((i: api_user) =>
-			new User({
+			new user({
 				api_token: this.api_token,
 				api_url: this.api_url,
 				data: i,

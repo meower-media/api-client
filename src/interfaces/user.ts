@@ -1,4 +1,4 @@
-import { type api_post, Post } from './post.ts';
+import { type api_post, post } from './post.ts';
 
 /** raw user data */
 export interface api_user {
@@ -84,7 +84,7 @@ export function is_api_user(obj: unknown): obj is api_user {
 }
 
 /** a user on meower */
-export class User {
+export class user {
 	private api_url: string;
 	private api_token: string;
 	private raw: api_user;
@@ -181,7 +181,7 @@ export class User {
 	}
 
 	/** get the user's posts */
-	async get_posts(): Promise<Post[]> {
+	async get_posts(): Promise<post[]> {
 		const resp = await fetch(`${this.api_url}/users/${this.id}/posts`, {
 			headers: { 'token': this.api_token },
 		});
@@ -193,7 +193,7 @@ export class User {
 		}
 
 		return data.autoget.map((i: api_post) =>
-			new Post({ data: i, api_url: this.api_url, api_token: this.api_token })
+			new post({ data: i, api_url: this.api_url, api_token: this.api_token })
 		);
 	}
 }

@@ -20,7 +20,7 @@ export interface client_signup_options extends client_login_options {
 }
 
 /** a meower api client written in typescript */
-export class Client {
+export class client {
 	/** access to the rest api */
 	api: rest_api;
 	/** access to websocket events */
@@ -34,7 +34,7 @@ export class Client {
 	/** signup for an account and login */
 	static async signup(
 		opts: client_signup_options,
-	): Promise<Client> {
+	): Promise<client> {
 		const rest = await rest_api.signup(
 			opts.username,
 			opts.password,
@@ -44,11 +44,11 @@ export class Client {
 
 		const ws = await socket.connect({ ...opts, api_token: rest.api_token });
 
-		return new Client(rest, ws);
+		return new client(rest, ws);
 	}
 
 	/** login to an account */
-	static async login(opts: client_login_options): Promise<Client> {
+	static async login(opts: client_login_options): Promise<client> {
 		const rest = await rest_api.login(
 			opts.username,
 			opts.password,
@@ -57,6 +57,6 @@ export class Client {
 
 		const ws = await socket.connect({ ...opts, api_token: rest.api_token });
 
-		return new Client(rest, ws);
+		return new client(rest, ws);
 	}
 }

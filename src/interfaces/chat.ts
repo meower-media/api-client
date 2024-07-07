@@ -1,4 +1,4 @@
-import { type api_post, Post } from './post.ts';
+import { type api_post, post } from './post.ts';
 
 /** chat types */
 export enum chat_type {
@@ -81,7 +81,7 @@ export function is_api_chat(obj: unknown): obj is api_chat {
 }
 
 /** a chat on meower */
-export class Chat {
+export class chat {
 	private api_url: string;
 	private api_token: string;
 	private raw: api_chat;
@@ -254,7 +254,7 @@ export class Chat {
 	}
 
 	/** send a message */
-	async send_message(content: string): Promise<Post> {
+	async send_message(content: string): Promise<post> {
 		let url = `${this.api_url}/posts/${this.id}`;
 		if (this.id === 'home') url = `${this.api_url}/home`;
 
@@ -277,7 +277,7 @@ export class Chat {
 			});
 		}
 
-		return new Post({
+		return new post({
 			data,
 			api_url: this.api_url,
 			api_token: this.api_token,
@@ -285,7 +285,7 @@ export class Chat {
 	}
 
 	/** search for posts in the chat */
-	async search(query: string, page: number = 1): Promise<Post[]> {
+	async search(query: string, page: number = 1): Promise<post[]> {
 		if (this.id !== 'home') {
 			throw new Error('search is only available in home');
 		}
@@ -307,7 +307,7 @@ export class Chat {
 		}
 
 		return data.autoget.map((i: api_post) =>
-			new Post({
+			new post({
 				data: i,
 				api_url: this.api_url,
 				api_token: this.api_token,
@@ -316,7 +316,7 @@ export class Chat {
 	}
 
 	/** get messages in the chat */
-	async get_messages(page: number = 1): Promise<Post[]> {
+	async get_messages(page: number = 1): Promise<post[]> {
 		let url = `${this.api_url}/posts/${this.id}`;
 		if (this.id === 'home') url = `${this.api_url}/home`;
 
@@ -334,7 +334,7 @@ export class Chat {
 		}
 
 		return data.autoget.map((i: api_post) =>
-			new Post({
+			new post({
 				data: i,
 				api_url: this.api_url,
 				api_token: this.api_token,

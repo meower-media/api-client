@@ -1,5 +1,5 @@
 import { EventEmitter } from 'jsr:@denosaurs/event@2.0.2';
-import { type api_post, Post } from '../interfaces/post.ts';
+import { type api_post, post } from '../interfaces/post.ts';
 
 /** options used to connect to the meower socket */
 export interface socket_connect_opts {
@@ -41,7 +41,7 @@ export class socket extends EventEmitter<{
 	packet: [socket_packet];
 	[key: `cmd-${string}`]: [socket_packet];
 	[key: `listener-${string}`]: [socket_packet];
-	post: [Post];
+	post: [post];
 }> {
 	private socket: WebSocket;
 	private opts: socket_connect_opts;
@@ -97,7 +97,7 @@ export class socket extends EventEmitter<{
 			) return;
 			if (packet.cmd) return;
 
-			const post = new Post({
+			const post = new post({
 				api_token: this.opts.api_token,
 				api_url: this.opts.api_url,
 				data: packet.val as unknown as api_post,
