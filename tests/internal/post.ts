@@ -1,4 +1,4 @@
-import { assertEquals } from 'jsr:@std/assert@0.226.0';
+import { assertEquals } from './deps.ts';
 import {
 	type api_post,
 	type post,
