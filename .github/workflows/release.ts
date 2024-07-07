@@ -64,7 +64,7 @@ const pkg = {
 	'types': 'src/index.ts',
 	'repository': {
 		'type': 'git',
-		'url': 'https://github.com/meower-media-co/meower.js',
+		'url': 'https://github.com/meower-media-co/api-client',
 	},
 	'optionalDependencies': {
 		'ws': '^8.13.0',
