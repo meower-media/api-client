@@ -145,8 +145,8 @@ Deno.test('api chats', async (i) => {
 	});
 
 	await i.step('get single chat (failed)', async () => {
-        // @ts-ignore: clear chat cache
-        client.chat_cache.set('test', undefined)
+		// @ts-ignore: clear chat cache
+		client.chat_cache.set('test', undefined);
 
 		mockFetch('http://localhost:8000/chats/test', {
 			status: 404,
@@ -196,8 +196,8 @@ Deno.test('api get post', async (i) => {
 	});
 
 	await i.step('get post (failed)', async () => {
-        // @ts-ignore: clear post cache
-        client.post_cache.set('test', undefined)
+		// @ts-ignore: clear post cache
+		client.post_cache.set('test', undefined);
 
 		mockFetch('http://localhost:8000/posts?id=test', {
 			status: 404,
@@ -224,8 +224,8 @@ Deno.test('api users', async (i) => {
 	});
 
 	await i.step('get user (failed)', async () => {
-        // @ts-ignore: clear user cache
-        client.user_cache.set('test', undefined)
+		// @ts-ignore: clear user cache
+		client.user_cache.set('test', undefined);
 
 		mockFetch('http://localhost:8000/users/test', {
 			status: 404,
