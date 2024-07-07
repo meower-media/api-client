@@ -53,6 +53,16 @@ export interface post_report_options {
 	comment: string;
 }
 
+/** post update options */
+export interface post_update_options {
+	/** new content */
+	content?: string;
+	/** new attachments */
+	attachments?: string[];
+	/** nonce */
+	nonce?: string;
+}
+
 /** check if a value is a post */
 export function is_api_post(obj: unknown): obj is api_post {
 	if (obj === null || typeof obj !== 'object') return false;
@@ -210,5 +220,32 @@ export class post {
 				cause: await resp.json(),
 			});
 		}
+	}
+
+	/** edit the post */
+	async update(opts: post_update_options) {
+		const resp = await fetch(`${this.api_url}/posts/?id=${this.id}`, {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json',
+				'token': this.api_token,
+			},
+			body: JSON.stringify({
+				attachments: opts.attachments ?? this.attachments,
+				content: opts.content ?? this.content,
+				nonce: opts.nonce ?? undefined,
+			}),
+		});
+
+		const data = await resp.json();
+
+		if (!resp.ok || data.error) {
+			throw new Error('failed to update post', {
+				cause: data,
+			});
+		}
+
+		this.raw = data;
+		this.assign_data();
 	}
 }

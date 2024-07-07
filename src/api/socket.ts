@@ -97,13 +97,13 @@ export class socket extends EventEmitter<{
 			) return;
 			if (packet.cmd) return;
 
-			const post = new post({
+			const p = new post({
 				api_token: this.opts.api_token,
 				api_url: this.opts.api_url,
 				data: packet.val as unknown as api_post,
 			});
 
-			this.emit('post', post);
+			this.emit('post', p);
 		});
 	}
 
