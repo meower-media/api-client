@@ -4,6 +4,8 @@ import { copy, walk } from 'jsr:@std/fs@1.0.0-rc.3';
 
 try {
 	await Deno.remove('dist', { recursive: true });
+} catch {
+	console.log('no dist folder')
 } finally {
 	await Deno.mkdir('dist');
 }
