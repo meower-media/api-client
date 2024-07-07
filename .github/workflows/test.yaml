@@ -1,4 +1,4 @@
-name: Lint
+name: Test
 on:
   push:
   pull_request:
@@ -11,4 +11,4 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.44.4
-      - run: deno fmt --check .
+      - run: deno test
