@@ -245,12 +245,18 @@ export class chat {
 		let url = `${this.api_url}/chats/${this.id}/typing`;
 		if (this.id === 'home') url = `${this.api_url}/home/typing`;
 
-		await fetch(url, {
+		const resp = await fetch(url, {
 			method: 'POST',
 			headers: {
 				token: this.api_token,
 			},
 		});
+
+		if (!resp.ok) {
+			throw new Error('failed to send typing indicator', {
+				cause: await resp.json(),
+			});
+		}
 	}
 
 	/** send a message */
