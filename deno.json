@@ -1,0 +1,33 @@
+{
+	"name": "@meower/api-client",
+	"version": "1.0.0-rc1",
+	"exports": "./src/index.ts",
+	"include": [
+		"src",
+		"LICENSE",
+		"README.md"
+	],
+	"fmt": {
+		"lineWidth": 80,
+		"proseWrap": "always",
+		"semiColons": true,
+		"useTabs": true,
+		"singleQuote": true
+	},
+	"lint": {
+		"rules": {
+			"include": [
+				"ban-untagged-todo",
+				"default-param-last",
+				"eqeqeq",
+				"no-eval",
+				"triple-slash-reference",
+				"verbatim-module-syntax"
+			]
+		},
+		"exclude": [
+			".github/**/*"
+		]
+	},
+	"lock": false
+}
