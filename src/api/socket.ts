@@ -59,20 +59,20 @@ export class socket extends EventEmitter<{
 		this.emit('socket_open');
 
 		this.send({
-			'cmd': 'authpswd',
-			'val': {
-				'username': this.opts.username,
-				'pswd': this.opts.api_token
-			}
-		})
-
-		this.send({
 			'cmd': 'direct',
 			'val': {
 				'cmd': 'type',
 				'val': 'js',
 			},
 		});
+
+		this.send({
+			'cmd': 'authpswd',
+			'val': {
+				'username': this.opts.username,
+				'pswd': this.opts.api_token
+			}
+		})
 
 		setInterval(() => {
 			if (this.socket.readyState === 1) {
