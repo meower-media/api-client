@@ -49,6 +49,7 @@ Deno.test('post construction', async (i) => {
 		const p = new post({
 			api_url: 'http://localhost:8000',
 			api_token: 'test',
+			api_username: 'test',
 			data: regular_post,
 		});
 
@@ -59,6 +60,7 @@ Deno.test('post construction', async (i) => {
 		const p = new post({
 			api_url: 'http://localhost:8000',
 			api_token: 'test',
+			api_username: 'test',
 			data: bridged_post,
 		});
 
@@ -70,6 +72,7 @@ Deno.test('post pinning', async (i) => {
 	const p = new post({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
+		api_username: 'test',
 		data: regular_post,
 	});
 
@@ -132,6 +135,7 @@ Deno.test('post deletion', async (i) => {
 	const p = new post({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
+		api_username: 'test',
 		data: regular_post,
 	});
 
@@ -164,6 +168,7 @@ Deno.test('post reporting', async (i) => {
 	const p = new post({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
+		api_username: 'test',
 		data: regular_post,
 	});
 
@@ -196,6 +201,7 @@ Deno.test('post editing', async (i) => {
 	const p = new post({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
+		api_username: 'test',
 		data: regular_post,
 	});
 
@@ -227,6 +233,39 @@ Deno.test('post editing', async (i) => {
 			await p.update({
 				content: 'new content',
 			});
+		});
+	});
+});
+
+Deno.test('post reply', async (i) => {
+	const p = new post({
+		api_url: 'http://localhost:8000',
+		api_token: 'test',
+		api_username: 'test',
+		data: regular_post,
+	});
+
+	await i.step('reply (successful)', async () => {
+		mockFetch('http://localhost:8000/posts/:id', {
+			body: JSON.stringify(regular_post),
+		});
+
+		const post = await p.reply('test');
+
+		post_is_api_post(post, regular_post);
+	});
+
+	await i.step('reply (failed)', async () => {
+		mockFetch('http://localhost:8000/posts/:id', {
+			status: 404,
+			body: JSON.stringify({
+				error: true,
+				type: 'notFound',
+			}),
+		});
+
+		await assertRejects(async () => {
+			await p.reply('test');
 		});
 	});
 });

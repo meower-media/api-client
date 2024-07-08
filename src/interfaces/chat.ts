@@ -40,6 +40,8 @@ export interface chat_construction_opts {
 	api_url: string;
 	/** api token */
 	api_token: string;
+	/** api username */
+	api_username: string;
 	/** chat data */
 	data: api_chat;
 }
@@ -54,6 +56,14 @@ export interface chat_update_opts {
 	icon_color?: string;
 	/** whether pinning is allowed */
 	allow_pinning?: boolean;
+}
+
+/** message send options */
+export interface message_send_opts {
+	/** message content */
+	content: string;
+	/** message attachments */
+	attachments?: string[];
 }
 
 /** check if a value is a chat */
@@ -84,6 +94,7 @@ export function is_api_chat(obj: unknown): obj is api_chat {
 export class chat {
 	private api_url: string;
 	private api_token: string;
+	private api_username: string;
 	private raw: api_chat;
 	/** chat id */
 	id!: string;
@@ -111,6 +122,7 @@ export class chat {
 	constructor(opts: chat_construction_opts) {
 		this.api_url = opts.api_url;
 		this.api_token = opts.api_token;
+		this.api_username = opts.api_username;
 		this.raw = opts.data;
 		if (!is_api_chat(this.raw)) {
 			throw new Error('data is not a chat', { cause: this.raw });
@@ -260,7 +272,7 @@ export class chat {
 	}
 
 	/** send a message */
-	async send_message(content: string): Promise<post> {
+	async send_message(content: string | message_send_opts): Promise<post> {
 		let url = `${this.api_url}/posts/${this.id}`;
 		if (this.id === 'home') url = `${this.api_url}/home`;
 
@@ -270,9 +282,9 @@ export class chat {
 				token: this.api_token,
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({
-				content,
-			}),
+			body: JSON.stringify(
+				typeof content === 'string' ? { content } : content,
+			),
 		});
 
 		const data = await resp.json();
@@ -287,6 +299,7 @@ export class chat {
 			data,
 			api_url: this.api_url,
 			api_token: this.api_token,
+			api_username: this.api_username,
 		});
 	}
 
@@ -317,6 +330,7 @@ export class chat {
 				data: i,
 				api_url: this.api_url,
 				api_token: this.api_token,
+				api_username: this.api_username,
 			})
 		);
 	}
@@ -344,6 +358,7 @@ export class chat {
 				data: i,
 				api_url: this.api_url,
 				api_token: this.api_token,
+				api_username: this.api_username,
 			})
 		);
 	}

@@ -70,9 +70,9 @@ export class socket extends EventEmitter<{
 			'cmd': 'authpswd',
 			'val': {
 				'username': this.opts.username,
-				'pswd': this.opts.api_token
-			}
-		})
+				'pswd': this.opts.api_token,
+			},
+		});
 
 		setInterval(() => {
 			if (this.socket.readyState === 1) {
@@ -105,11 +105,13 @@ export class socket extends EventEmitter<{
 				!packet.val || typeof packet.val !== 'object' ||
 				Array.isArray(packet.val)
 			) return;
+
 			if (packet.cmd) return;
 
 			const p = new post({
 				api_token: this.opts.api_token,
 				api_url: this.opts.api_url,
+				api_username: this.opts.username,
 				data: packet.val as unknown as api_post,
 			});
 

@@ -32,6 +32,8 @@ export interface api_user {
 
 /** user construction options */
 export interface user_construction_opts {
+	/** api username */
+	api_username: string;
 	/** api url */
 	api_url: string;
 	/** api token */
@@ -87,6 +89,7 @@ export function is_api_user(obj: unknown): obj is api_user {
 export class user {
 	private api_url: string;
 	private api_token: string;
+	private api_username: string;
 	private raw: api_user;
 	/** user id */
 	id!: string;
@@ -118,6 +121,7 @@ export class user {
 	constructor(opts: user_construction_opts) {
 		this.api_url = opts.api_url;
 		this.api_token = opts.api_token;
+		this.api_username = opts.api_username;
 		this.raw = opts.data;
 		if (!is_api_user(this.raw)) {
 			throw new Error('data is not a user', { cause: this.raw });
@@ -193,7 +197,12 @@ export class user {
 		}
 
 		return data.autoget.map((i: api_post) =>
-			new post({ data: i, api_url: this.api_url, api_token: this.api_token })
+			new post({
+				data: i,
+				api_url: this.api_url,
+				api_username: this.api_username,
+				api_token: this.api_token,
+			})
 		);
 	}
 }

@@ -1,9 +1,30 @@
+import type { message_send_opts } from './chat.ts';
+
 /** types of posts */
 export enum post_type {
 	/** normal posts (home) */
 	normal = 1,
 	/** inbox posts */
 	inbox = 2,
+}
+
+/** bridge users */
+export const bridge_users = ['Discord', 'boltcanary', 'bolt'];
+
+/** api attachment */
+export interface api_attachment {
+	/** filename */
+	filename: string;
+	/** file type */
+	mime: string;
+	/** file size */
+	size: number;
+	/** image height */
+	height?: number;
+	/** image width */
+	width?: number;
+	/** file id */
+	id: string;
 }
 
 /** raw post data */
@@ -41,6 +62,8 @@ export interface post_construction_opts {
 	api_url: string;
 	/** api token */
 	api_token: string;
+	/** api username */
+	api_username: string;
 	/** post data */
 	data: api_post;
 }
@@ -92,6 +115,7 @@ export function is_api_post(obj: unknown): obj is api_post {
 export class post {
 	private api_url: string;
 	private api_token: string;
+	private api_username: string;
 	private raw: api_post;
 	/** attachments */
 	attachments?: string[];
@@ -117,6 +141,7 @@ export class post {
 	constructor(opts: post_construction_opts) {
 		this.api_url = opts.api_url;
 		this.api_token = opts.api_token;
+		this.api_username = opts.api_username;
 		this.raw = opts.data;
 		if (!is_api_post(this.raw)) {
 			throw new Error('data is not a post', { cause: this.raw });
@@ -132,15 +157,23 @@ export class post {
 			? new post({
 				api_token: this.api_token,
 				api_url: this.api_url,
+				api_username: this.api_username,
 				data: this.raw.bridged,
 			})
 			: undefined;
 		this.deleted = this.raw.isDeleted;
-		this.content = this.raw.p;
 		this.chat_id = this.raw.post_origin;
 		this.timestamp = this.raw.t.e;
 		this.type = this.raw.type;
-		this.username = this.raw.u;
+
+		if (!bridge_users.includes(this.raw.u)) {
+			this.content = this.raw.p;
+			this.username = this.raw.u;
+		} else {
+			const [username, content] = this.raw.p.split(': ');
+			this.content = content;
+			this.username = username;
+		}
 	}
 
 	/** delete the post */
@@ -247,5 +280,39 @@ export class post {
 
 		this.raw = data;
 		this.assign_data();
+	}
+
+	/** reply to the post */
+	async reply(content: string | message_send_opts): Promise<post> {
+		let text_content = typeof content === 'string' ? content : content.content;
+
+		text_content = `@${this.api_username} "" (${this.id})\n${content}`;
+
+		let url = `${this.api_url}/posts/${this.chat_id}`;
+
+		if (this.chat_id === 'home') url = `${this.api_url}/home`;
+
+		const resp = await (await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'token': this.api_token,
+			},
+			body: JSON.stringify({
+				...(typeof content !== 'string' ? content : {}),
+				content: text_content,
+			}),
+		})).json();
+
+		if (resp.error) {
+			throw new Error('failed to send reply', { cause: resp });
+		}
+
+		return new post({
+			api_token: this.api_token,
+			api_url: this.api_url,
+			api_username: this.api_username,
+			data: resp,
+		});
 	}
 }

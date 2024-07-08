@@ -42,6 +42,7 @@ export class rest_api {
 	constructor(opts: api_construction_opts) {
 		this.api_user = new user({
 			api_token: opts.token,
+			api_username: opts.account.lower_username,
 			api_url: opts.api_url,
 			data: opts.account,
 		});
@@ -85,6 +86,7 @@ export class rest_api {
 			return new chat({
 				api_token: this.api_token,
 				api_url: this.api_url,
+				api_username: this.api_user.username,
 				data: cached,
 			});
 		}
@@ -106,6 +108,7 @@ export class rest_api {
 		return new chat({
 			api_token: this.api_token,
 			api_url: this.api_url,
+			api_username: this.api_user.username,
 			data,
 		});
 	}
@@ -133,6 +136,7 @@ export class rest_api {
 			new chat({
 				api_token: this.api_token,
 				api_url: this.api_url,
+				api_username: this.api_user.username,
 				data: i,
 			})
 		);
@@ -162,6 +166,7 @@ export class rest_api {
 		return new chat({
 			api_token: this.api_token,
 			api_url: this.api_url,
+			api_username: this.api_user.username,
 			data,
 		});
 	}
@@ -174,6 +179,7 @@ export class rest_api {
 			return new post({
 				api_token: this.api_token,
 				api_url: this.api_url,
+				api_username: this.api_user.username,
 				data: cached,
 			});
 		}
@@ -195,6 +201,7 @@ export class rest_api {
 		return new post({
 			api_token: this.api_token,
 			api_url: this.api_url,
+			api_username: this.api_user.username,
 			data,
 		});
 	}
@@ -207,6 +214,7 @@ export class rest_api {
 			return new user({
 				api_token: this.api_token,
 				api_url: this.api_url,
+				api_username: this.api_user.username,
 				data: cached,
 			});
 		}
@@ -228,6 +236,7 @@ export class rest_api {
 		return new user({
 			api_token: this.api_token,
 			api_url: this.api_url,
+			api_username: this.api_user.username,
 			data,
 		});
 	}
@@ -253,6 +262,7 @@ export class rest_api {
 			new user({
 				api_token: this.api_token,
 				api_url: this.api_url,
+				api_username: this.api_user.username,
 				data: i,
 			})
 		);
