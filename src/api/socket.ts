@@ -43,7 +43,9 @@ export class socket extends EventEmitter<{
 	packet: [socket_packet];
 	[key: `cmd-${string}`]: [socket_packet];
 	[key: `listener-${string}`]: [socket_packet];
-	post: [post];
+	create_message: [post];
+	edit_message: [post];
+	delete_message: [{ id: string}];
 }> {
 	private socket: WebSocket;
 	private opts: socket_connect_opts;
@@ -56,32 +58,34 @@ export class socket extends EventEmitter<{
 	}
 
 	private setup() {
-		this.emit('socket_open');
+		this.socket.onopen = () => {
+			this.emit('socket_open');
 
-		this.send({
-			'cmd': 'direct',
-			'val': {
-				'cmd': 'type',
-				'val': 'js',
-			},
-		});
-
-		this.send({
-			'cmd': 'authpswd',
-			'val': {
-				'username': this.opts.username,
-				'pswd': this.opts.api_token,
-			},
-		});
-
-		setInterval(() => {
-			if (this.socket.readyState === 1) {
-				this.send({
-					'cmd': 'ping',
-					'val': '',
-				});
-			}
-		}, 30000);
+			this.send({
+				'cmd': 'direct',
+				'val': {
+					'cmd': 'type',
+					'val': 'js',
+				},
+			});
+	
+			this.send({
+				'cmd': 'authpswd',
+				'val': {
+					'username': this.opts.username,
+					'pswd': this.opts.api_token,
+				},
+			});
+	
+			setInterval(() => {
+				if (this.socket.readyState === 1) {
+					this.send({
+						'cmd': 'ping',
+						'val': '',
+					});
+				}
+			}, 30000);
+		}
 
 		this.socket.onclose = () => this.emit('socket_close');
 
@@ -106,16 +110,21 @@ export class socket extends EventEmitter<{
 				Array.isArray(packet.val)
 			) return;
 
-			if (packet.cmd) return;
+			if (packet.val.p) {
+				const event = 'payload' in packet.val ? 'edit_message' : 'create_message';
+				const api = (packet.val.payload ?? packet.val) as unknown as api_post;
+				const p = new post({
+					api_token: this.opts.api_token,
+					api_url: this.opts.api_url,
+					api_username: this.opts.username,
+					data: api,
+				});
+				this.emit(event, p);
+			}
 
-			const p = new post({
-				api_token: this.opts.api_token,
-				api_url: this.opts.api_url,
-				api_username: this.opts.username,
-				data: packet.val as unknown as api_post,
-			});
-
-			this.emit('post', p);
+			if (packet.val.mode === 'delete_post') {
+				this.emit('delete_message', { id: packet.val.id as string });
+			}
 		});
 	}
 
