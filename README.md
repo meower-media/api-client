@@ -1,4 +1,4 @@
-![Project logo](/logo.svg)
+![Project logo](/banner.png)
 
 # api-client
 
