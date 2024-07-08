@@ -1,3 +1,5 @@
+![Project logo](/logo.svg)
+
 # api-client
 
 A Meower API Client written in Typescript.
