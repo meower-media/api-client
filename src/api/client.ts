@@ -1,5 +1,6 @@
 import { rest_api } from './rest.ts';
 import { socket } from './socket.ts';
+import { uploads } from './uploads.ts';
 
 /** options used by the client to login */
 export interface client_login_options {
@@ -11,6 +12,8 @@ export interface client_login_options {
 	api_url: string;
 	/** socket url */
 	socket_url: string;
+	/** uploads url */
+	uploads_url: string;
 }
 
 /** options used by the client to signup */
@@ -25,10 +28,13 @@ export class client {
 	api: rest_api;
 	/** access to websocket events */
 	socket: socket;
+	/** access to uploads */
+	uploads: uploads;
 
-	private constructor(api: rest_api, socket: socket) {
+	constructor(api: rest_api, socket: socket, uploads: uploads) {
 		this.api = api;
 		this.socket = socket;
+		this.uploads = uploads;
 	}
 
 	/** signup for an account and login */
@@ -44,7 +50,12 @@ export class client {
 
 		const ws = await socket.connect({ ...opts, api_token: rest.api_token });
 
-		return new client(rest, ws);
+		const u = new uploads({
+			base_url: opts.uploads_url,
+			token: rest.api_token,
+		});
+
+		return new client(rest, ws, u);
 	}
 
 	/** login to an account */
@@ -57,6 +68,11 @@ export class client {
 
 		const ws = await socket.connect({ ...opts, api_token: rest.api_token });
 
-		return new client(rest, ws);
+		const u = new uploads({
+			base_url: opts.uploads_url,
+			token: rest.api_token,
+		});
+
+		return new client(rest, ws, u);
 	}
 }
