@@ -9,6 +9,8 @@ export interface socket_connect_opts {
 	api_token: string;
 	/** the socket url */
 	socket_url: string;
+	/** the username */
+	username: string;
 }
 
 /** socket value types */
@@ -55,6 +57,14 @@ export class socket extends EventEmitter<{
 
 	private setup() {
 		this.emit('socket_open');
+
+		this.send({
+			'cmd': 'authpswd',
+			'val': {
+				'username': this.opts.username,
+				'pswd': this.opts.api_token
+			}
+		})
 
 		this.send({
 			'cmd': 'direct',
