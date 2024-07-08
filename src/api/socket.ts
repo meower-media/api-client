@@ -45,7 +45,7 @@ export class socket extends EventEmitter<{
 	[key: `listener-${string}`]: [socket_packet];
 	create_message: [post];
 	edit_message: [post];
-	delete_message: [{ id: string}];
+	delete_message: [{ id: string }];
 }> {
 	private socket: WebSocket;
 	private opts: socket_connect_opts;
@@ -68,7 +68,7 @@ export class socket extends EventEmitter<{
 					'val': 'js',
 				},
 			});
-	
+
 			this.send({
 				'cmd': 'authpswd',
 				'val': {
@@ -76,7 +76,7 @@ export class socket extends EventEmitter<{
 					'pswd': this.opts.api_token,
 				},
 			});
-	
+
 			setInterval(() => {
 				if (this.socket.readyState === 1) {
 					this.send({
@@ -85,7 +85,7 @@ export class socket extends EventEmitter<{
 					});
 				}
 			}, 30000);
-		}
+		};
 
 		this.socket.onclose = () => this.emit('socket_close');
 
@@ -111,7 +111,9 @@ export class socket extends EventEmitter<{
 			) return;
 
 			if (packet.val.p) {
-				const event = 'payload' in packet.val ? 'edit_message' : 'create_message';
+				const event = 'payload' in packet.val
+					? 'edit_message'
+					: 'create_message';
 				const api = (packet.val.payload ?? packet.val) as unknown as api_post;
 				const p = new post({
 					api_token: this.opts.api_token,

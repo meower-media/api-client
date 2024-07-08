@@ -1,3 +1,4 @@
+import type { api_attachment } from '../api/uploads.ts';
 import type { message_send_opts } from './chat.ts';
 
 /** types of posts */
@@ -11,26 +12,10 @@ export enum post_type {
 /** bridge users */
 export const bridge_users = ['Discord', 'boltcanary', 'bolt'];
 
-/** api attachment */
-export interface api_attachment {
-	/** filename */
-	filename: string;
-	/** file type */
-	mime: string;
-	/** file size */
-	size: number;
-	/** image height */
-	height?: number;
-	/** image width */
-	width?: number;
-	/** file id */
-	id: string;
-}
-
 /** raw post data */
 export interface api_post {
 	/** attachments */
-	attachments?: string[];
+	attachments?: api_attachment[];
 	/** is the post pinned */
 	pinned: boolean;
 	/** bridged post */
@@ -118,7 +103,7 @@ export class post {
 	private api_username: string;
 	private raw: api_post;
 	/** attachments */
-	attachments?: string[];
+	attachments?: api_attachment[];
 	/** post id */
 	id!: string;
 	/** whether the post in pinned */

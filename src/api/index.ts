@@ -4,3 +4,4 @@
 export * from './client.ts';
 export * from './rest.ts';
 export * from './socket.ts';
+export * from './uploads.ts';
