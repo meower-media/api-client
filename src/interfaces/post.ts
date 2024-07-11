@@ -101,7 +101,8 @@ export class post {
 	private api_url: string;
 	private api_token: string;
 	private api_username: string;
-	private raw: api_post;
+	/** raw api data */
+	raw: api_post;
 	/** attachments */
 	attachments?: api_attachment[];
 	/** post id */

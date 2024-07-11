@@ -305,7 +305,7 @@ export class rest_api {
 			throw new Error('failed to login', { cause: data });
 		}
 
-		return new rest_api({ ...data, api_url });
+		return new rest_api({ api_url, token: data.token, account: data.account });
 	}
 
 	/** signup for an account on meower */
@@ -333,6 +333,6 @@ export class rest_api {
 			throw new Error('failed to signup', { cause: data });
 		}
 
-		return new rest_api({ ...data, api_url });
+		return new rest_api({ api_url, token: data.token, account: data.account });
 	}
 }

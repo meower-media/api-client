@@ -68,9 +68,17 @@ export class client {
 
 		const ws = await socket.connect({ ...opts, api_token: rest.api_token });
 
+		const token = await new Promise((resolve) => {
+			ws.on('auth', (data) => {
+				resolve(data.token);
+			});
+		}) as string;
+
+		rest.api_token = token;
+
 		const u = new uploads({
 			base_url: opts.uploads_url,
-			token: rest.api_token,
+			token,
 		});
 
 		return new client(rest, ws, u);

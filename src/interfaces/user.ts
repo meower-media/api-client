@@ -90,7 +90,8 @@ export class user {
 	private api_url: string;
 	private api_token: string;
 	private api_username: string;
-	private raw: api_user;
+	/** raw user data */
+	raw: api_user;
 	/** user id */
 	id!: string;
 	/** user avatar file id */

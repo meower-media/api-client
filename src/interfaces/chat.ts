@@ -95,7 +95,8 @@ export class chat {
 	private api_url: string;
 	private api_token: string;
 	private api_username: string;
-	private raw: api_chat;
+	/** raw api data */
+	raw: api_chat;
 	/** chat id */
 	id!: string;
 	/** whether pinning is allowed */
