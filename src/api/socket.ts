@@ -1,6 +1,6 @@
-import { EventEmitter } from "jsr:@denosaurs/event@2.0.2";
-import { type api_post, post } from "../interfaces/post.ts";
-import type { api_user } from "../interfaces/user.ts";
+import { EventEmitter } from 'jsr:@denosaurs/event@2.0.2';
+import { type api_post, post } from '../interfaces/post.ts';
+import type { api_user } from '../interfaces/user.ts';
 
 /** options used to connect to the meower socket */
 export interface socket_connect_opts {
@@ -70,7 +70,7 @@ export class socket extends EventEmitter<{
 	}
 
 	private setup() {
-		this.emit("socket_open");
+		this.emit('socket_open');
 
 		this.send({
 			'cmd': 'direct',
@@ -81,30 +81,30 @@ export class socket extends EventEmitter<{
 		});
 
 		this.send({
-			"cmd": "authpswd",
-			"val": {
-				"username": this.opts.username,
-				"pswd": this.opts.password ?? this.opts.api_token,
+			'cmd': 'authpswd',
+			'val': {
+				'username': this.opts.username,
+				'pswd': this.opts.password ?? this.opts.api_token,
 			},
 		});
 
 		setInterval(() => {
 			if (this.socket.readyState === 1) {
 				this.send({
-					"cmd": "ping",
-					"val": "",
+					'cmd': 'ping',
+					'val': '',
 				});
 			}
 		}, 30000);
 
-		this.socket.onclose = () => this.emit("socket_close");
+		this.socket.onclose = () => this.emit('socket_close');
 
 		this.socket.onmessage = (event) => {
 			const packet = JSON.parse(event.data);
 
 			if (!packet) return;
 
-			this.emit("packet", packet);
+			this.emit('packet', packet);
 			this.emit(`cmd-${packet.cmd}`, packet);
 
 			if (packet.listener) {
@@ -112,20 +112,19 @@ export class socket extends EventEmitter<{
 			}
 		};
 
-		this.socket.onerror = (err) => this.emit("socket_error", err);
+		this.socket.onerror = (err) => this.emit('socket_error', err);
 
-		this.on("cmd-direct", (packet) => {
+		this.on('cmd-direct', (packet) => {
 			if (
-				!packet.val || typeof packet.val !== "object" ||
+				!packet.val || typeof packet.val !== 'object' ||
 				Array.isArray(packet.val)
 			) return;
 
 			if (packet.val.p) {
-				const event = "payload" in packet.val
-					? "edit_message"
-					: "create_message";
-				const api =
-					(packet.val.payload ?? packet.val) as unknown as api_post;
+				const event = 'payload' in packet.val
+					? 'edit_message'
+					: 'create_message';
+				const api = (packet.val.payload ?? packet.val) as unknown as api_post;
 				const p = new post({
 					api_token: this.opts.api_token,
 					api_url: this.opts.api_url,
@@ -135,22 +134,22 @@ export class socket extends EventEmitter<{
 				this.emit(event, p);
 			}
 
-			if (packet.val.mode === "delete_post") {
-				this.emit("delete_message", { id: packet.val.id as string });
+			if (packet.val.mode === 'delete_post') {
+				this.emit('delete_message', { id: packet.val.id as string });
 			}
 		});
 
-		this.on("cmd-direct", (packet) => {
+		this.on('cmd-direct', (packet) => {
 			const val = packet.val as Record<string, unknown>;
 
-			if (val.mode !== "auth") return;
-			
+			if (val.mode !== 'auth') return;
+
 			const auth_event = val.payload as socket_auth_event;
 
 			this.opts.api_token = auth_event.token;
 
-			this.emit("auth", auth_event)
-		})
+			this.emit('auth', auth_event);
+		});
 	}
 
 	static async connect(opts: socket_connect_opts): Promise<socket> {
