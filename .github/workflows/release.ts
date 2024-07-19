@@ -66,10 +66,10 @@ const pkg = {
 		'type': 'git',
 		'url': 'https://github.com/meower-media-co/api-client',
 	},
-	'optionalDependencies': {
-		'ws': '^8.13.0',
-	},
 	'scripts': {},
+	'engines': {
+		'node': '>=22'
+	}
 };
 
 Deno.writeTextFileSync('dist/package.json', JSON.stringify(pkg, null, 2));
