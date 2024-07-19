@@ -68,8 +68,8 @@ const pkg = {
 	},
 	'scripts': {},
 	'engines': {
-		'node': '>=22'
-	}
+		'node': '>=22',
+	},
 };
 
 Deno.writeTextFileSync('dist/package.json', JSON.stringify(pkg, null, 2));
