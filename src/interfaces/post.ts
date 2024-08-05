@@ -1,4 +1,4 @@
-import type { api_attachment } from '../api/uploads.ts';
+import { type api_attachment, is_api_attachment } from '../api/uploads.ts';
 import type { message_send_opts } from './chat.ts';
 
 /** types of posts */
@@ -9,17 +9,12 @@ export enum post_type {
 	inbox = 2,
 }
 
-/** bridge users */
-export const bridge_users = ['Discord', 'boltcanary', 'bolt'];
-
 /** raw post data */
 export interface api_post {
 	/** attachments */
 	attachments?: api_attachment[];
 	/** is the post pinned */
 	pinned: boolean;
-	/** bridged post */
-	bridged?: api_post;
 	/** post id */
 	_id: string;
 	/** is the post deleted */
@@ -39,6 +34,16 @@ export interface api_post {
 	type: post_type;
 	/** username */
 	u: string;
+	/** stickers */
+	stickers: api_attachment[];
+	/** reply to */
+	reply_to: api_post[];
+	/** reactions */
+	reactions: {
+		count: number;
+		emoji: string;
+		user_reacted: boolean;
+	}[]
 }
 
 /** post creation options */
@@ -92,6 +97,18 @@ export function is_api_post(obj: unknown): obj is api_post {
 	if (!('e' in obj.t) || typeof obj.t.e !== 'number') return false;
 	if (!('type' in obj) || typeof obj.type !== 'number') return false;
 	if (!('u' in obj) || typeof obj.u !== 'string') return false;
+	if (!('stickers' in obj) || !Array.isArray(obj.stickers)) return false;
+	for (const i of obj.stickers) {
+		if (!is_api_attachment(i)) return false;
+	}
+	if (!('reply_to' in obj) || !Array.isArray(obj.reply_to)) return false;
+	for (const i of obj.reply_to) {
+		if (!is_api_post(i)) return false;
+	}
+	if (!('reactions' in obj) || !Array.isArray(obj.reactions)) return false;
+	for (const i of obj.reactions) {
+		if (!is_api_attachment(i)) return false;
+	}
 
 	return true;
 }
@@ -104,13 +121,11 @@ export class post {
 	/** raw api data */
 	raw: api_post;
 	/** attachments */
-	attachments?: api_attachment[];
+	attachments!: api_attachment[];
 	/** post id */
 	id!: string;
 	/** whether the post in pinned */
 	pinned!: boolean;
-	/** bridged post, if any */
-	bridged?: post;
 	/** is the post deleted */
 	deleted!: boolean;
 	/** post content */
@@ -123,6 +138,12 @@ export class post {
 	type!: post_type;
 	/** username */
 	username!: string;
+	/** reply to */
+	replies!: post[]
+	/** stickers */
+	stickers!: api_attachment[];
+	/** reactions */
+	reactions!: api_post['reactions'];
 
 	constructor(opts: post_construction_opts) {
 		this.api_url = opts.api_url;
@@ -136,30 +157,21 @@ export class post {
 	}
 
 	private assign_data() {
-		this.attachments = this.raw.attachments;
+		this.attachments = this.raw.attachments || [];
 		this.id = this.raw._id;
 		this.pinned = this.raw.pinned;
-		this.bridged = this.raw.bridged
-			? new post({
-				api_token: this.api_token,
-				api_url: this.api_url,
-				api_username: this.api_username,
-				data: this.raw.bridged,
-			})
-			: undefined;
 		this.deleted = this.raw.isDeleted;
 		this.chat_id = this.raw.post_origin;
 		this.timestamp = this.raw.t.e;
 		this.type = this.raw.type;
-
-		if (!bridge_users.includes(this.raw.u)) {
-			this.content = this.raw.p;
-			this.username = this.raw.u;
-		} else {
-			const [username, content] = this.raw.p.split(': ');
-			this.content = content;
-			this.username = username;
-		}
+		this.replies = this.raw.reply_to.map(i=>new post({
+			api_token: this.api_token,
+			api_url: this.api_url,
+			api_username: this.api_username,
+			data: i,
+		}));
+		this.stickers = this.raw.stickers;
+		this.reactions = this.raw.reactions;
 	}
 
 	/** delete the post */
@@ -269,11 +281,7 @@ export class post {
 	}
 
 	/** reply to the post */
-	async reply(content: string | message_send_opts): Promise<post> {
-		let text_content = typeof content === 'string' ? content : content.content;
-
-		text_content = `@${this.api_username} "" (${this.id})\n${content}`;
-
+	async reply(content: message_send_opts): Promise<post> {
 		let url = `${this.api_url}/posts/${this.chat_id}`;
 
 		if (this.chat_id === 'home') url = `${this.api_url}/home`;
@@ -285,8 +293,8 @@ export class post {
 				'token': this.api_token,
 			},
 			body: JSON.stringify({
-				...(typeof content !== 'string' ? content : {}),
-				content: text_content,
+				...content,
+				reply_to: [...content.reply_to ?? [], this.id],
 			}),
 		})).json();
 
@@ -300,5 +308,74 @@ export class post {
 			api_username: this.api_username,
 			data: resp,
 		});
+	}
+
+	/** react to the post */
+	async react(emoji: string) {
+		const url = `${this.api_url}/posts/${this.id}/reactions`;
+
+		const resp = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'token': this.api_token,
+			},
+			body: JSON.stringify({
+				emoji,
+			}),
+		});
+
+		if (!resp.ok) {
+			throw new Error('failed to react to post', {
+				cause: await resp.json(),
+			});
+		}
+
+		const found_emoji_index = this.reactions.findIndex(i=>i.emoji === emoji);
+		const found_raw_emoji_index = this.raw.reactions.findIndex(i=>i.emoji === emoji);
+
+		if (found_emoji_index === -1) {
+			const new_reaction = {
+				emoji,
+				count: 1,
+				user_reacted: true,
+			}
+
+			this.reactions.push(new_reaction);
+			this.raw.reactions.push(new_reaction);
+		} else {
+			this.reactions[found_emoji_index].count++;
+			this.raw.reactions[found_raw_emoji_index].count++;
+		}
+	}
+
+	/** remove reaction */
+	async remove_reaction(emoji: string) {
+		const url = `${this.api_url}/posts/${this.id}/reactions`;
+
+		const resp = await fetch(url, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				'token': this.api_token,
+			},
+			body: JSON.stringify({
+				emoji,
+			}),
+		});
+
+		if (!resp.ok) {
+			throw new Error('failed to remove reaction from post', {
+				cause: await resp.json(),
+			});
+		}
+
+		const found_emoji_index = this.reactions.findIndex(i=>i.emoji === emoji);
+		const found_raw_emoji_index = this.raw.reactions.findIndex(i=>i.emoji === emoji);
+
+		if (found_emoji_index !== -1) {
+			this.reactions[found_emoji_index].count--;
+			this.raw.reactions[found_raw_emoji_index].count--;
+		}
 	}
 }

@@ -1,3 +1,4 @@
+import { is_api_attachment, type api_attachment } from '../api/uploads.ts';
 import { type api_post, post } from './post.ts';
 
 /** chat types */
@@ -32,6 +33,10 @@ export interface api_chat {
 	owner: string;
 	/** chat type */
 	type: chat_type;
+	/** emojis */
+	emojis: api_attachment[];
+	/** stickers */
+	stickers: api_attachment[];
 }
 
 /** chat construction options */
@@ -64,6 +69,10 @@ export interface message_send_opts {
 	content: string;
 	/** message attachments */
 	attachments?: string[];
+	/** reply id list */
+	reply_to?: string[];
+	/** stickers */
+	stickers?: string[];
 }
 
 /** check if a value is a chat */
@@ -86,6 +95,14 @@ export function is_api_chat(obj: unknown): obj is api_chat {
 	if (!('nickname' in obj) || typeof obj.nickname !== 'string') return false;
 	if (!('owner' in obj) || typeof obj.owner !== 'string') return false;
 	if (!('type' in obj) || typeof obj.type !== 'number') return false;
+	if (!('emojis' in obj) || !Array.isArray(obj.emojis)) return false;
+	for (const i of obj.emojis) {
+		if (!is_api_attachment(i)) return false;
+	}
+	if (!('stickers' in obj) || !Array.isArray(obj.stickers)) return false;
+	for (const i of obj.stickers) {
+		if (!is_api_attachment(i)) return false;
+	}
 
 	return true;
 }
@@ -119,6 +136,10 @@ export class chat {
 	owner!: string;
 	/** chat type */
 	type!: chat_type;
+	/** emojis */
+	emojis!: api_attachment[];
+	/** stickers */
+	stickers!: api_attachment[];
 
 	constructor(opts: chat_construction_opts) {
 		this.api_url = opts.api_url;
@@ -143,6 +164,8 @@ export class chat {
 		this.nickname = this.raw.nickname;
 		this.owner = this.raw.owner;
 		this.type = this.raw.type;
+		this.emojis = this.raw.emojis;
+		this.stickers = this.raw.stickers;
 	}
 
 	/** leave the chat */
@@ -273,7 +296,7 @@ export class chat {
 	}
 
 	/** send a message */
-	async send_message(content: string | message_send_opts): Promise<post> {
+	async send_message(content: message_send_opts): Promise<post> {
 		let url = `${this.api_url}/posts/${this.id}`;
 		if (this.id === 'home') url = `${this.api_url}/home`;
 
@@ -283,9 +306,7 @@ export class chat {
 				token: this.api_token,
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify(
-				typeof content === 'string' ? { content } : content,
-			),
+			body: JSON.stringify(content),
 		});
 
 		const data = await resp.json();

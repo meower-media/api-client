@@ -26,6 +26,20 @@ export interface uploads_opts {
 export enum upload_types {
 	attachment = 'attachments',
 	icon = 'icons',
+	sticker = 'stickers',
+	emoji = 'emojis',
+}
+
+/** check if object is an api reaction */
+export function is_api_attachment(obj: unknown): obj is api_attachment {
+	if (obj === null || typeof obj !== 'object') return false;
+	if (!('count' in obj) || typeof obj.count !== 'number') return false;
+	if (!('emoji' in obj) || typeof obj.emoji !== 'string') return false;
+	if (!('user_reacted' in obj) || typeof obj.user_reacted !== 'boolean') {
+		return false;
+	}
+
+	return true;
 }
 
 /** access to meower uploads */
