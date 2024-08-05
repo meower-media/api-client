@@ -62,7 +62,8 @@ export class socket extends EventEmitter<{
 	private socket: WebSocket;
 	private opts: socket_connect_opts;
 
-	private constructor(socket: WebSocket, opts: socket_connect_opts) {
+	/** create a socket instance from a given websocket connection */
+	constructor(socket: WebSocket, opts: socket_connect_opts) {
 		super();
 		this.socket = socket;
 		this.opts = opts;

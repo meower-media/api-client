@@ -25,7 +25,6 @@
 		]
 	},
 	"tasks": {
-		"build-npm": "deno run -A .github/workflows/release.ts",
 		"test": "deno test -A"
 	},
 	"test": {
