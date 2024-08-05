@@ -43,7 +43,7 @@ export interface api_post {
 		count: number;
 		emoji: string;
 		user_reacted: boolean;
-	}[]
+	}[];
 }
 
 /** post creation options */
@@ -139,7 +139,7 @@ export class post {
 	/** username */
 	username!: string;
 	/** reply to */
-	replies!: post[]
+	replies!: post[];
 	/** stickers */
 	stickers!: api_attachment[];
 	/** reactions */
@@ -164,12 +164,14 @@ export class post {
 		this.chat_id = this.raw.post_origin;
 		this.timestamp = this.raw.t.e;
 		this.type = this.raw.type;
-		this.replies = this.raw.reply_to.map(i=>new post({
-			api_token: this.api_token,
-			api_url: this.api_url,
-			api_username: this.api_username,
-			data: i,
-		}));
+		this.replies = this.raw.reply_to.map((i) =>
+			new post({
+				api_token: this.api_token,
+				api_url: this.api_url,
+				api_username: this.api_username,
+				data: i,
+			})
+		);
 		this.stickers = this.raw.stickers;
 		this.reactions = this.raw.reactions;
 	}
@@ -331,15 +333,19 @@ export class post {
 			});
 		}
 
-		const found_emoji_index = this.reactions.findIndex(i=>i.emoji === emoji);
-		const found_raw_emoji_index = this.raw.reactions.findIndex(i=>i.emoji === emoji);
+		const found_emoji_index = this.reactions.findIndex((i) =>
+			i.emoji === emoji
+		);
+		const found_raw_emoji_index = this.raw.reactions.findIndex((i) =>
+			i.emoji === emoji
+		);
 
 		if (found_emoji_index === -1) {
 			const new_reaction = {
 				emoji,
 				count: 1,
 				user_reacted: true,
-			}
+			};
 
 			this.reactions.push(new_reaction);
 			this.raw.reactions.push(new_reaction);
@@ -370,8 +376,12 @@ export class post {
 			});
 		}
 
-		const found_emoji_index = this.reactions.findIndex(i=>i.emoji === emoji);
-		const found_raw_emoji_index = this.raw.reactions.findIndex(i=>i.emoji === emoji);
+		const found_emoji_index = this.reactions.findIndex((i) =>
+			i.emoji === emoji
+		);
+		const found_raw_emoji_index = this.raw.reactions.findIndex((i) =>
+			i.emoji === emoji
+		);
 
 		if (found_emoji_index !== -1) {
 			this.reactions[found_emoji_index].count--;

@@ -1,4 +1,4 @@
-import { is_api_attachment, type api_attachment } from '../api/uploads.ts';
+import { type api_attachment, is_api_attachment } from '../api/uploads.ts';
 import { type api_post, post } from './post.ts';
 
 /** chat types */
