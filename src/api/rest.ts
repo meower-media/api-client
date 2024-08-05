@@ -61,6 +61,8 @@ export class rest_api {
 			nickname: 'home',
 			owner: '',
 			type: 0,
+			emojis: [],
+			stickers: [],
 		});
 
 		this.chat_cache.set('livechat', {
@@ -75,6 +77,8 @@ export class rest_api {
 			nickname: 'livechat',
 			owner: '',
 			type: 0,
+			emojis: [],
+			stickers: [],
 		});
 	}
 

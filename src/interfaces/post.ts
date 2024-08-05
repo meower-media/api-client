@@ -161,9 +161,11 @@ export class post {
 		this.id = this.raw._id;
 		this.pinned = this.raw.pinned;
 		this.deleted = this.raw.isDeleted;
+		this.content = this.raw.p;
 		this.chat_id = this.raw.post_origin;
 		this.timestamp = this.raw.t.e;
 		this.type = this.raw.type;
+		this.username = this.raw.u;
 		this.replies = this.raw.reply_to.map((i) =>
 			new post({
 				api_token: this.api_token,

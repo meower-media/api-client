@@ -15,11 +15,7 @@ export function post_is_api_post(post: post, api_post: api_post) {
 	assertEquals(post.timestamp, api_post.t.e);
 	assertEquals(post.type, api_post.type);
 	assertEquals(post.username, api_post.u);
-	if (api_post.bridged && post.bridged) {
-		post_is_api_post(post.bridged, api_post.bridged);
-	} else {
-		assertEquals(post.bridged, undefined);
-	}
+	assertEquals(post.reactions, api_post.reactions);
 }
 
 export const regular_post: api_post = {
@@ -35,9 +31,7 @@ export const regular_post: api_post = {
 	},
 	type: post_type.normal,
 	u: 'test',
-};
-
-export const bridged_post: api_post = {
-	...regular_post,
-	bridged: regular_post,
+	reactions: [],
+	reply_to: [],
+	stickers: [],
 };

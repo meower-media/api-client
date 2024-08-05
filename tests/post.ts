@@ -5,11 +5,7 @@ import {
 	assertThrows,
 	mockFetch,
 } from './internal/deps.ts';
-import {
-	bridged_post,
-	post_is_api_post,
-	regular_post,
-} from './internal/post.ts';
+import { post_is_api_post, regular_post } from './internal/post.ts';
 
 Deno.test('api_post validation', async (i) => {
 	await i.step('number (invalid)', () => {
@@ -24,12 +20,8 @@ Deno.test('api_post validation', async (i) => {
 		assertEquals(is_api_post({}), false);
 	});
 
-	await i.step('post (valid, not bridged)', () => {
+	await i.step('post (valid)', () => {
 		assertEquals(is_api_post(regular_post), true);
-	});
-
-	await i.step('post (valid, bridged)', () => {
-		assertEquals(is_api_post(bridged_post), true);
 	});
 });
 
@@ -45,7 +37,7 @@ Deno.test('post construction', async (i) => {
 		});
 	});
 
-	await i.step('construct valid post (not bridged)', () => {
+	await i.step('construct valid post', () => {
 		const p = new post({
 			api_url: 'http://localhost:8000',
 			api_token: 'test',
@@ -54,17 +46,6 @@ Deno.test('post construction', async (i) => {
 		});
 
 		post_is_api_post(p, regular_post);
-	});
-
-	await i.step('construct valid post (bridged)', () => {
-		const p = new post({
-			api_url: 'http://localhost:8000',
-			api_token: 'test',
-			api_username: 'test',
-			data: bridged_post,
-		});
-
-		post_is_api_post(p, bridged_post);
 	});
 });
 
@@ -250,7 +231,9 @@ Deno.test('post reply', async (i) => {
 			body: JSON.stringify(regular_post),
 		});
 
-		const post = await p.reply('test');
+		const post = await p.reply({
+			content: 'test',
+		});
 
 		post_is_api_post(post, regular_post);
 	});
@@ -265,7 +248,9 @@ Deno.test('post reply', async (i) => {
 		});
 
 		await assertRejects(async () => {
-			await p.reply('test');
+			await p.reply({
+				content: 'test',
+			});
 		});
 	});
 });

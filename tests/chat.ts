@@ -240,7 +240,9 @@ Deno.test('chat messages', async (i) => {
 			}),
 		});
 
-		const p = await c.send_message('test');
+		const p = await c.send_message({
+			content: 'test',
+		});
 
 		post_is_api_post(p, regular_post);
 	});
@@ -255,7 +257,9 @@ Deno.test('chat messages', async (i) => {
 		});
 
 		await assertRejects(async () => {
-			await c.send_message('test');
+			await c.send_message({
+				content: 'test',
+			});
 		});
 	});
 

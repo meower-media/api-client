@@ -31,4 +31,6 @@ export const regular_chat: api_chat = {
 	'nickname': 'test',
 	'owner': 'test',
 	'type': chat_type.chat,
+	'emojis': [],
+	'stickers': [],
 };
