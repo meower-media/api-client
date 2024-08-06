@@ -42,7 +42,7 @@ Deno.test('chat construction', async (i) => {
 		const c = new chat({
 			api_url: 'http://localhost:8000',
 			api_token: 'test',
-			api_username: 'test',
+
 			data: regular_chat,
 		});
 
@@ -54,7 +54,7 @@ Deno.test('chat leaving', async (i) => {
 	const c = new chat({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
-		api_username: 'test',
+
 		data: regular_chat,
 	});
 
@@ -85,7 +85,7 @@ Deno.test('chat updating', async (i) => {
 	const c = new chat({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
-		api_username: 'test',
+
 		data: regular_chat,
 	});
 
@@ -124,7 +124,7 @@ Deno.test('chat members', async (i) => {
 	const c = new chat({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
-		api_username: 'test',
+
 		data: regular_chat,
 	});
 
@@ -205,7 +205,7 @@ Deno.test('chat messages', async (i) => {
 	const c = new chat({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
-		api_username: 'test',
+
 		data: regular_chat,
 	});
 
@@ -296,14 +296,14 @@ Deno.test('chat search', async (i) => {
 	const c = new chat({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
-		api_username: 'test',
+
 		data: regular_chat,
 	});
 
 	const h = new chat({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
-		api_username: 'test',
+
 		data: {
 			...regular_chat,
 			_id: 'home',

@@ -41,7 +41,7 @@ Deno.test('post construction', async (i) => {
 		const p = new post({
 			api_url: 'http://localhost:8000',
 			api_token: 'test',
-			api_username: 'test',
+
 			data: regular_post,
 		});
 
@@ -53,7 +53,7 @@ Deno.test('post pinning', async (i) => {
 	const p = new post({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
-		api_username: 'test',
+
 		data: regular_post,
 	});
 
@@ -116,7 +116,7 @@ Deno.test('post deletion', async (i) => {
 	const p = new post({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
-		api_username: 'test',
+
 		data: regular_post,
 	});
 
@@ -149,7 +149,7 @@ Deno.test('post reporting', async (i) => {
 	const p = new post({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
-		api_username: 'test',
+
 		data: regular_post,
 	});
 
@@ -182,7 +182,7 @@ Deno.test('post editing', async (i) => {
 	const p = new post({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
-		api_username: 'test',
+
 		data: regular_post,
 	});
 
@@ -222,7 +222,7 @@ Deno.test('post reply', async (i) => {
 	const p = new post({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
-		api_username: 'test',
+
 		data: regular_post,
 	});
 

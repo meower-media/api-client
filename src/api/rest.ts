@@ -36,11 +36,11 @@ export class rest_api {
 	/** the api token */
 	api_token: string;
 	/** @internal chat cache */
-	_chat_cache = new Map<string, api_chat>();
+	_chat_cache: Map<string, api_chat> = new Map();
 	/** @internal post cache */
-	_post_cache = new Map<string, api_post>();
+	_post_cache: Map<string, api_post> = new Map();
 	/** @internal user cache */
-	_user_cache = new Map<string, api_user>();
+	_user_cache: Map<string, api_user> = new Map();
 
 	constructor(opts: api_construction_opts) {
 		this.api_user = new user({

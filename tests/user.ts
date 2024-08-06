@@ -47,7 +47,7 @@ Deno.test('user construction', async (i) => {
 		const u = new user({
 			api_url: 'http://localhost:8000',
 			api_token: 'test',
-			api_username: 'test',
+
 			data: regular_user,
 		});
 
@@ -59,7 +59,7 @@ Deno.test('user reporting', async (i) => {
 	const u = new user({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
-		api_username: 'test',
+
 		data: regular_user,
 	});
 
@@ -86,7 +86,7 @@ Deno.test('user relationship', async (i) => {
 	const u = new user({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
-		api_username: 'test',
+
 		data: regular_user,
 	});
 
@@ -114,7 +114,7 @@ Deno.test('user posts', async (i) => {
 	const u = new user({
 		api_url: 'http://localhost:8000',
 		api_token: 'test',
-		api_username: 'test',
+
 		data: regular_user,
 	});
 

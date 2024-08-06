@@ -16,7 +16,7 @@ export interface socket_connect_opts {
 /** socket value types */
 export type socket_value =
 	| string
-	| { [key: string]: socket_value }
+	| { [key: string]: socket_value };
 
 /** a packet sent over the socket */
 export interface socket_packet {
@@ -39,7 +39,7 @@ export interface socket_auth_event {
 	/** relationships */
 	relationships: {
 		username: string;
-		tyoe: user_relationship_status
+		tyoe: user_relationship_status;
 	}[];
 	/** chats */
 	chats: api_chat[];
@@ -55,8 +55,8 @@ export class socket extends EventEmitter<{
 	[key: `listener-${string}`]: [socket_packet];
 	create_message: [post];
 	edit_message: [post];
-	delete_message: [{ post_id: string, chat_id: string }];
-	typing: [{ chat_id: string, username: string }];
+	delete_message: [{ post_id: string; chat_id: string }];
+	typing: [{ chat_id: string; username: string }];
 	auth: [socket_auth_event];
 }> {
 	private socket: WebSocket;
@@ -100,7 +100,7 @@ export class socket extends EventEmitter<{
 
 		this.socket.onerror = (err) => this.emit('socket_error', err);
 
-		this.on('cmd-post', packet => {
+		this.on('cmd-post', (packet) => {
 			try {
 				const api = packet.val as unknown as api_post;
 				const p = new post({
@@ -112,9 +112,9 @@ export class socket extends EventEmitter<{
 			} catch {
 				// ignore
 			}
-		})
+		});
 
-		this.on('cmd-update_post', packet => {
+		this.on('cmd-update_post', (packet) => {
 			try {
 				const api = packet.val as unknown as api_post;
 				const p = new post({
@@ -126,25 +126,28 @@ export class socket extends EventEmitter<{
 			} catch {
 				// ignore
 			}
-		})
+		});
 
-		this.on('cmd-delete_post', packet => {
-			this.emit('delete_message', packet.val as { post_id: string, chat_id: string });
-		})
+		this.on('cmd-delete_post', (packet) => {
+			this.emit(
+				'delete_message',
+				packet.val as { post_id: string; chat_id: string },
+			);
+		});
 
-		this.on('cmd-typing', packet => {
-			this.emit('typing', packet.val as { chat_id: string, username: string });
-		})
+		this.on('cmd-typing', (packet) => {
+			this.emit('typing', packet.val as { chat_id: string; username: string });
+		});
 
-		this.on('cmd-ulist', packet => {
-			this.ulist = (packet.val as string).split(';')
-		})
+		this.on('cmd-ulist', (packet) => {
+			this.ulist = (packet.val as string).split(';');
+		});
 
-		this.on('cmd-auth', packet => {
+		this.on('cmd-auth', (packet) => {
 			this.emit('auth', packet.val as unknown as socket_auth_event);
 
 			this.opts.api_token = (packet.val as unknown as socket_auth_event).token;
-		})
+		});
 	}
 
 	static async connect(opts: socket_connect_opts): Promise<socket> {
