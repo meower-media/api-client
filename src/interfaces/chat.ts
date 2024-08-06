@@ -45,8 +45,6 @@ export interface chat_construction_opts {
 	api_url: string;
 	/** api token */
 	api_token: string;
-	/** api username */
-	api_username: string;
 	/** chat data */
 	data: api_chat;
 }
@@ -111,7 +109,6 @@ export function is_api_chat(obj: unknown): obj is api_chat {
 export class chat {
 	private api_url: string;
 	private api_token: string;
-	private api_username: string;
 	/** raw api data */
 	raw: api_chat;
 	/** chat id */
@@ -144,7 +141,6 @@ export class chat {
 	constructor(opts: chat_construction_opts) {
 		this.api_url = opts.api_url;
 		this.api_token = opts.api_token;
-		this.api_username = opts.api_username;
 		this.raw = opts.data;
 		if (!is_api_chat(this.raw)) {
 			throw new Error('data is not a chat', { cause: this.raw });
@@ -321,7 +317,6 @@ export class chat {
 			data,
 			api_url: this.api_url,
 			api_token: this.api_token,
-			api_username: this.api_username,
 		});
 	}
 
@@ -352,7 +347,6 @@ export class chat {
 				data: i,
 				api_url: this.api_url,
 				api_token: this.api_token,
-				api_username: this.api_username,
 			})
 		);
 	}
@@ -380,7 +374,6 @@ export class chat {
 				data: i,
 				api_url: this.api_url,
 				api_token: this.api_token,
-				api_username: this.api_username,
 			})
 		);
 	}

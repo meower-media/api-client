@@ -35,21 +35,23 @@ export class rest_api {
 	api_url: string;
 	/** the api token */
 	api_token: string;
-	private chat_cache = new Map<string, api_chat>();
-	private post_cache = new Map<string, api_post>();
-	private user_cache = new Map<string, api_user>();
+	/** @internal chat cache */
+	_chat_cache = new Map<string, api_chat>();
+	/** @internal post cache */
+	_post_cache = new Map<string, api_post>();
+	/** @internal user cache */
+	_user_cache = new Map<string, api_user>();
 
 	constructor(opts: api_construction_opts) {
 		this.api_user = new user({
 			api_token: opts.token,
-			api_username: opts.account.lower_username,
 			api_url: opts.api_url,
 			data: opts.account,
 		});
 		this.api_url = opts.api_url;
 		this.api_token = opts.token;
 
-		this.chat_cache.set('home', {
+		this._chat_cache.set('home', {
 			_id: 'home',
 			allow_pinning: false,
 			created: 0,
@@ -65,7 +67,7 @@ export class rest_api {
 			stickers: [],
 		});
 
-		this.chat_cache.set('livechat', {
+		this._chat_cache.set('livechat', {
 			_id: 'livechat',
 			allow_pinning: false,
 			created: 0,
@@ -84,13 +86,12 @@ export class rest_api {
 
 	/** get a chat by id */
 	async get_chat(id: string): Promise<chat> {
-		const cached = this.chat_cache.get(id);
+		const cached = this._chat_cache.get(id);
 
 		if (cached) {
 			return new chat({
 				api_token: this.api_token,
 				api_url: this.api_url,
-				api_username: this.api_user.username,
 				data: cached,
 			});
 		}
@@ -107,12 +108,11 @@ export class rest_api {
 			throw new Error('failed to get chat', { cause: data });
 		}
 
-		this.chat_cache.set(id, data);
+		this._chat_cache.set(id, data);
 
 		return new chat({
 			api_token: this.api_token,
 			api_url: this.api_url,
-			api_username: this.api_user.username,
 			data,
 		});
 	}
@@ -132,15 +132,14 @@ export class rest_api {
 		}
 
 		data.autoget.push(
-			this.chat_cache.get('home'),
-			this.chat_cache.get('livechat'),
+			this._chat_cache.get('home'),
+			this._chat_cache.get('livechat'),
 		);
 
 		return data.autoget.map((i: api_chat) =>
 			new chat({
 				api_token: this.api_token,
 				api_url: this.api_url,
-				api_username: this.api_user.username,
 				data: i,
 			})
 		);
@@ -165,25 +164,23 @@ export class rest_api {
 			throw new Error('failed to create chat', { cause: data });
 		}
 
-		this.chat_cache.set(data._id, data);
+		this._chat_cache.set(data._id, data);
 
 		return new chat({
 			api_token: this.api_token,
 			api_url: this.api_url,
-			api_username: this.api_user.username,
 			data,
 		});
 	}
 
 	/** get a post by id */
 	async get_post(id: string): Promise<post> {
-		const cached = this.post_cache.get(id);
+		const cached = this._post_cache.get(id);
 
 		if (cached) {
 			return new post({
 				api_token: this.api_token,
 				api_url: this.api_url,
-				api_username: this.api_user.username,
 				data: cached,
 			});
 		}
@@ -200,25 +197,23 @@ export class rest_api {
 			throw new Error('failed to get post', { cause: data });
 		}
 
-		this.post_cache.set(id, data);
+		this._post_cache.set(id, data);
 
 		return new post({
 			api_token: this.api_token,
 			api_url: this.api_url,
-			api_username: this.api_user.username,
 			data,
 		});
 	}
 
 	/** get a user by id */
 	async get_user(id: string): Promise<user> {
-		const cached = this.user_cache.get(id);
+		const cached = this._user_cache.get(id);
 
 		if (cached) {
 			return new user({
 				api_token: this.api_token,
 				api_url: this.api_url,
-				api_username: this.api_user.username,
 				data: cached,
 			});
 		}
@@ -235,12 +230,11 @@ export class rest_api {
 			throw new Error('failed to get user', { cause: data });
 		}
 
-		this.user_cache.set(id, data);
+		this._user_cache.set(id, data);
 
 		return new user({
 			api_token: this.api_token,
 			api_url: this.api_url,
-			api_username: this.api_user.username,
 			data,
 		});
 	}
@@ -266,7 +260,6 @@ export class rest_api {
 			new user({
 				api_token: this.api_token,
 				api_url: this.api_url,
-				api_username: this.api_user.username,
 				data: i,
 			})
 		);

@@ -52,8 +52,6 @@ export interface post_construction_opts {
 	api_url: string;
 	/** api token */
 	api_token: string;
-	/** api username */
-	api_username: string;
 	/** post data */
 	data: api_post;
 }
@@ -117,7 +115,6 @@ export function is_api_post(obj: unknown): obj is api_post {
 export class post {
 	private api_url: string;
 	private api_token: string;
-	private api_username: string;
 	/** raw api data */
 	raw: api_post;
 	/** attachments */
@@ -148,7 +145,6 @@ export class post {
 	constructor(opts: post_construction_opts) {
 		this.api_url = opts.api_url;
 		this.api_token = opts.api_token;
-		this.api_username = opts.api_username;
 		this.raw = opts.data;
 		if (!is_api_post(this.raw)) {
 			throw new Error('data is not a post', { cause: this.raw });
@@ -170,7 +166,6 @@ export class post {
 			new post({
 				api_token: this.api_token,
 				api_url: this.api_url,
-				api_username: this.api_username,
 				data: i,
 			})
 		);
@@ -309,7 +304,6 @@ export class post {
 		return new post({
 			api_token: this.api_token,
 			api_url: this.api_url,
-			api_username: this.api_username,
 			data: resp,
 		});
 	}

@@ -1,6 +1,7 @@
 import { EventEmitter } from 'jsr:@denosaurs/event@2.0.2';
 import { type api_post, post } from '../interfaces/post.ts';
-import type { api_user } from '../interfaces/user.ts';
+import type { api_user, user_relationship_status } from '../interfaces/user.ts';
+import type { api_chat } from '../interfaces/chat.ts';
 
 /** options used to connect to the meower socket */
 export interface socket_connect_opts {
@@ -8,32 +9,21 @@ export interface socket_connect_opts {
 	api_url: string;
 	/** the api token */
 	api_token: string;
-	/** the password */
-	password?: string;
 	/** the socket url */
 	socket_url: string;
-	/** the username */
-	username: string;
 }
 
 /** socket value types */
 export type socket_value =
 	| string
-	| number
-	| boolean
 	| { [key: string]: socket_value }
-	| socket_value[];
 
 /** a packet sent over the socket */
 export interface socket_packet {
 	/** the packet command */
 	cmd: string;
 	/** the packet value */
-	val?: socket_value;
-	/** packet names */
-	name?: string;
-	/** packet id */
-	id?: string;
+	val: socket_value;
 	/** listener id */
 	listener?: string;
 }
@@ -44,6 +34,15 @@ export interface socket_auth_event {
 	account: api_user;
 	/** api token */
 	token: string;
+	/** username */
+	username: string;
+	/** relationships */
+	relationships: {
+		username: string;
+		tyoe: user_relationship_status
+	}[];
+	/** chats */
+	chats: api_chat[];
 }
 
 /** access to the meower socket */
@@ -56,11 +55,13 @@ export class socket extends EventEmitter<{
 	[key: `listener-${string}`]: [socket_packet];
 	create_message: [post];
 	edit_message: [post];
-	delete_message: [{ id: string }];
+	delete_message: [{ post_id: string, chat_id: string }];
+	typing: [{ chat_id: string, username: string }];
 	auth: [socket_auth_event];
 }> {
 	private socket: WebSocket;
 	private opts: socket_connect_opts;
+	ulist: string[] = [];
 
 	/** create a socket instance from a given websocket connection */
 	constructor(socket: WebSocket, opts: socket_connect_opts) {
@@ -72,22 +73,6 @@ export class socket extends EventEmitter<{
 
 	private setup() {
 		this.emit('socket_open');
-
-		this.send({
-			'cmd': 'direct',
-			'val': {
-				'cmd': 'type',
-				'val': 'js',
-			},
-		});
-
-		this.send({
-			'cmd': 'authpswd',
-			'val': {
-				'username': this.opts.username,
-				'pswd': this.opts.password ?? this.opts.api_token,
-			},
-		});
 
 		setInterval(() => {
 			if (this.socket.readyState === 1) {
@@ -115,47 +100,56 @@ export class socket extends EventEmitter<{
 
 		this.socket.onerror = (err) => this.emit('socket_error', err);
 
-		this.on('cmd-direct', (packet) => {
-			if (
-				!packet.val || typeof packet.val !== 'object' ||
-				Array.isArray(packet.val)
-			) return;
-
-			if (packet.val.p) {
-				const event = 'payload' in packet.val
-					? 'edit_message'
-					: 'create_message';
-				const api = (packet.val.payload ?? packet.val) as unknown as api_post;
+		this.on('cmd-post', packet => {
+			try {
+				const api = packet.val as unknown as api_post;
 				const p = new post({
 					api_token: this.opts.api_token,
 					api_url: this.opts.api_url,
-					api_username: this.opts.username,
 					data: api,
 				});
-				this.emit(event, p);
+				this.emit('create_message', p);
+			} catch {
+				// ignore
 			}
+		})
 
-			if (packet.val.mode === 'delete_post') {
-				this.emit('delete_message', { id: packet.val.id as string });
+		this.on('cmd-update_post', packet => {
+			try {
+				const api = packet.val as unknown as api_post;
+				const p = new post({
+					api_token: this.opts.api_token,
+					api_url: this.opts.api_url,
+					data: api,
+				});
+				this.emit('edit_message', p);
+			} catch {
+				// ignore
 			}
-		});
+		})
 
-		this.on('cmd-direct', (packet) => {
-			const val = packet.val as Record<string, unknown>;
+		this.on('cmd-delete_post', packet => {
+			this.emit('delete_message', packet.val as { post_id: string, chat_id: string });
+		})
 
-			if (val.mode !== 'auth') return;
+		this.on('cmd-typing', packet => {
+			this.emit('typing', packet.val as { chat_id: string, username: string });
+		})
 
-			const auth_event = val.payload as socket_auth_event;
+		this.on('cmd-ulist', packet => {
+			this.ulist = (packet.val as string).split(';')
+		})
 
-			this.opts.api_token = auth_event.token;
+		this.on('cmd-auth', packet => {
+			this.emit('auth', packet.val as unknown as socket_auth_event);
 
-			this.emit('auth', auth_event);
-		});
+			this.opts.api_token = (packet.val as unknown as socket_auth_event).token;
+		})
 	}
 
 	static async connect(opts: socket_connect_opts): Promise<socket> {
 		const ws = new WebSocket(
-			opts.socket_url,
+			`${opts.socket_url}/?v=1&token=${opts.api_token}`,
 		);
 		await new Promise((resolve) => ws.onopen = resolve);
 		return new socket(ws, opts);
@@ -170,7 +164,7 @@ export class socket extends EventEmitter<{
 	async reconnect() {
 		this.disconnect();
 		const socket = new WebSocket(
-			this.opts.socket_url,
+			`${this.opts.socket_url}/?v=1&token=${this.opts.api_token}`,
 		);
 		await new Promise((resolve) => socket.onopen = resolve);
 		this.socket = socket;

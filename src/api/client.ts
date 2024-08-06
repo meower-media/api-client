@@ -35,6 +35,12 @@ export class client {
 		this.api = api;
 		this.socket = socket;
 		this.uploads = uploads;
+
+		socket.on("auth", (data) => {
+			for (const chat of data.chats) {
+				api._chat_cache.set(chat._id, chat);
+			}
+		})
 	}
 
 	/** signup for an account and login */
