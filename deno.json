@@ -1,6 +1,6 @@
 {
 	"name": "@meower/api-client",
-	"version": "1.0.0-rc.6",
+	"version": "1.0.0",
 	"exports": "./src/index.ts",
 	"fmt": {
 		"lineWidth": 80,
