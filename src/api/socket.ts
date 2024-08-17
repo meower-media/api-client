@@ -1,7 +1,7 @@
 import { EventEmitter } from 'jsr:@denosaurs/event@2.0.2';
 import { type api_post, post } from '../interfaces/post.ts';
 import type { api_user, user_relationship_status } from '../interfaces/user.ts';
-import type { api_chat } from '../interfaces/chat.ts';
+import type { api_chat, chat } from '../interfaces/chat.ts';
 
 /** options used to connect to the meower socket */
 export interface socket_connect_opts {
@@ -45,6 +45,102 @@ export interface socket_auth_event {
 	chats: api_chat[];
 }
 
+/** deleted message information from the socket */
+export interface socket_delete_message {
+	/** the post id */
+	post_id: string;
+	/** the chat id */
+	chat_id: string;
+}
+
+/** post reaction information from the socket */
+export interface socket_post_reaction {
+	/** the chat id */
+	chat_id: string;
+	/** the post id */
+	post_id: string;
+	/** the emoji */
+	emoji: string;
+	/** the username */
+	username: string;
+}
+
+/** relationship update information from the socket */
+export interface socket_relationship_update {
+	/** the username */
+	username: string;
+	/** the type */
+	type: user_relationship_status;
+	/** time changed at in unix seconds */
+	updated_at: number;
+}
+
+/** user ban states */
+export enum user_ban_state {
+	/** not banned */
+	none = "none",
+	/** temporary restriction */
+	temporary_restriction = "temp_restriction",
+	/** permanent restriction */
+	permanent_restriction = "perm_restriction",
+	/** temporary ban */
+	temporary_ban = "temp_ban",
+	/** permanent ban */
+	permanent_ban = "perm_ban",
+}
+
+/** user ban information */
+export interface api_user_ban {
+	/** status */
+	status: user_ban_state;
+	/** new user permissions bitfield */
+	permissions: number;
+	/** time the ban expires in unix seconds */
+	expires: number;
+	/** reason for the ban */
+	reason: string;
+}
+
+/** updated profile information from the socket */
+export interface socket_profile_update {
+	/** profile image number */
+	pfp_data?: number;
+	/** avatar id */
+	avatar?: string;
+	/** profile color */
+	avatar_color?: string;
+	/** bio */
+	quote?: string;
+}
+
+/** updated config information from the socket */
+export interface socket_config_update extends socket_profile_update {
+	/** whether your inbox in unread */
+	unread_inbox?: boolean;
+	/** the theme used */
+	theme?: string;
+	/** light/dark mode */
+	mode?: boolean;
+	/** the layout to use */
+	layout?: string;
+	/** whether sound effects are enabled */
+	sfx?: boolean;
+	/** whether background music is enabled */
+	bgm?: boolean;
+	/** which bgm to use */
+	bgm_song?: number;
+	/** whether debugging is enabled */
+	debug?: boolean;
+	/** whether to hide blocked users */
+	hide_blocked_users?: boolean;
+	/** favorite chats */
+	favorited_chats?: string[];
+	/** permissions bitfield */
+	permissions?: number
+	/** ban information */
+	ban?: api_user_ban
+}
+
 /** access to the meower socket */
 export class socket extends EventEmitter<{
 	socket_open: [];
@@ -54,8 +150,21 @@ export class socket extends EventEmitter<{
 	[key: `cmd-${string}`]: [socket_packet];
 	[key: `listener-${string}`]: [socket_packet];
 	create_message: [post];
+	create_post: [post];
+	delete_message: [socket_delete_message];
+	delete_post: [socket_delete_message];
 	edit_message: [post];
-	delete_message: [{ post_id: string; chat_id: string }];
+	edit_post: [post];
+	inbox_message: [post];
+	ulist: [string[]];
+	create_chat: [chat];
+	update_chat: [chat];
+	delete_chat: [{ chat_id: string }];
+	post_reaction_add: [socket_post_reaction];
+	post_reaction_remove: [socket_post_reaction];
+	update_relationship: [socket_relationship_update];
+	update_config: [socket_config_update];
+	update_profile: [socket_profile_update];
 	typing: [{ chat_id: string; username: string }];
 	auth: [socket_auth_event];
 }> {
@@ -109,6 +218,7 @@ export class socket extends EventEmitter<{
 					data: api,
 				});
 				this.emit('create_message', p);
+				this.emit('create_post', p);
 			} catch {
 				// ignore
 			}
@@ -123,16 +233,16 @@ export class socket extends EventEmitter<{
 					data: api,
 				});
 				this.emit('edit_message', p);
+				this.emit('edit_post', p);
 			} catch {
 				// ignore
 			}
 		});
 
 		this.on('cmd-delete_post', (packet) => {
-			this.emit(
-				'delete_message',
-				packet.val as { post_id: string; chat_id: string },
-			);
+			const p = packet.val as { post_id: string; chat_id: string }
+			this.emit('delete_message', p);
+			this.emit('delete_post', p);
 		});
 
 		this.on('cmd-typing', (packet) => {
