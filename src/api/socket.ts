@@ -78,15 +78,15 @@ export interface socket_relationship_update {
 /** user ban states */
 export enum user_ban_state {
 	/** not banned */
-	none = "none",
+	none = 'none',
 	/** temporary restriction */
-	temporary_restriction = "temp_restriction",
+	temporary_restriction = 'temp_restriction',
 	/** permanent restriction */
-	permanent_restriction = "perm_restriction",
+	permanent_restriction = 'perm_restriction',
 	/** temporary ban */
-	temporary_ban = "temp_ban",
+	temporary_ban = 'temp_ban',
 	/** permanent ban */
-	permanent_ban = "perm_ban",
+	permanent_ban = 'perm_ban',
 }
 
 /** user ban information */
@@ -136,9 +136,9 @@ export interface socket_config_update extends socket_profile_update {
 	/** favorite chats */
 	favorited_chats?: string[];
 	/** permissions bitfield */
-	permissions?: number
+	permissions?: number;
 	/** ban information */
-	ban?: api_user_ban
+	ban?: api_user_ban;
 }
 
 /** access to the meower socket */
@@ -240,7 +240,7 @@ export class socket extends EventEmitter<{
 		});
 
 		this.on('cmd-delete_post', (packet) => {
-			const p = packet.val as { post_id: string; chat_id: string }
+			const p = packet.val as { post_id: string; chat_id: string };
 			this.emit('delete_message', p);
 			this.emit('delete_post', p);
 		});

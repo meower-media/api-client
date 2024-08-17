@@ -1,4 +1,9 @@
-import { type api_attachment, type api_emoji, is_api_attachment, is_api_emoji } from '../api/uploads.ts';
+import {
+	type api_attachment,
+	type api_emoji,
+	is_api_attachment,
+	is_api_emoji,
+} from '../api/uploads.ts';
 import type { message_send_opts } from './chat.ts';
 
 /** types of posts */
