@@ -14,6 +14,16 @@ export interface api_attachment {
 	id: string;
 }
 
+/** api emoji */
+export interface api_emoji {
+	/** file id */
+	_id: string;
+	/** emoji name */
+	name: string;
+	/** animated */
+	animated: boolean;
+}
+
 /** uploads class construction options */
 export interface uploads_opts {
 	/** base url for uploads */
@@ -38,6 +48,16 @@ export function is_api_attachment(obj: unknown): obj is api_attachment {
 	if (!('user_reacted' in obj) || typeof obj.user_reacted !== 'boolean') {
 		return false;
 	}
+
+	return true;
+}
+
+/** check if object is an api emoji */
+export function is_api_emoji(obj: unknown): obj is api_emoji {
+	if (obj === null || typeof obj !== 'object') return false;
+	if (!('_id' in obj) || typeof obj._id !== 'string') return false;
+	if (!('name' in obj) || typeof obj.name !== 'string') return false;
+	if (!('animated' in obj) || typeof obj.animated !== 'boolean') return false;
 
 	return true;
 }

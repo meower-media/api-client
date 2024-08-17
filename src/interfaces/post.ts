@@ -1,4 +1,4 @@
-import { type api_attachment, is_api_attachment } from '../api/uploads.ts';
+import { type api_attachment, type api_emoji, is_api_attachment, is_api_emoji } from '../api/uploads.ts';
 import type { message_send_opts } from './chat.ts';
 
 /** types of posts */
@@ -35,7 +35,7 @@ export interface api_post {
 	/** username */
 	u: string;
 	/** stickers */
-	stickers: api_attachment[];
+	stickers: api_emoji[];
 	/** reply to */
 	reply_to: api_post[];
 	/** reactions */
@@ -97,7 +97,7 @@ export function is_api_post(obj: unknown): obj is api_post {
 	if (!('u' in obj) || typeof obj.u !== 'string') return false;
 	if (!('stickers' in obj) || !Array.isArray(obj.stickers)) return false;
 	for (const i of obj.stickers) {
-		if (!is_api_attachment(i)) return false;
+		if (!is_api_emoji(i)) return false;
 	}
 	if (!('reply_to' in obj) || !Array.isArray(obj.reply_to)) return false;
 	for (const i of obj.reply_to) {
@@ -138,7 +138,7 @@ export class post {
 	/** reply to */
 	replies!: post[];
 	/** stickers */
-	stickers!: api_attachment[];
+	stickers!: api_emoji[];
 	/** reactions */
 	reactions!: api_post['reactions'];
 

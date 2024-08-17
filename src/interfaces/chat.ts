@@ -1,4 +1,4 @@
-import { type api_attachment, is_api_attachment } from '../api/uploads.ts';
+import { type api_emoji, is_api_emoji } from '../api/uploads.ts';
 import { type api_post, post } from './post.ts';
 
 /** chat types */
@@ -34,9 +34,9 @@ export interface api_chat {
 	/** chat type */
 	type: chat_type;
 	/** emojis */
-	emojis: api_attachment[];
+	emojis: api_emoji[];
 	/** stickers */
-	stickers: api_attachment[];
+	stickers: api_emoji[];
 }
 
 /** chat construction options */
@@ -95,11 +95,11 @@ export function is_api_chat(obj: unknown): obj is api_chat {
 	if (!('type' in obj) || typeof obj.type !== 'number') return false;
 	if (!('emojis' in obj) || !Array.isArray(obj.emojis)) return false;
 	for (const i of obj.emojis) {
-		if (!is_api_attachment(i)) return false;
+		if (!is_api_emoji(i)) return false;
 	}
 	if (!('stickers' in obj) || !Array.isArray(obj.stickers)) return false;
 	for (const i of obj.stickers) {
-		if (!is_api_attachment(i)) return false;
+		if (!is_api_emoji(i)) return false;
 	}
 
 	return true;
@@ -134,9 +134,9 @@ export class chat {
 	/** chat type */
 	type!: chat_type;
 	/** emojis */
-	emojis!: api_attachment[];
+	emojis!: api_emoji[];
 	/** stickers */
-	stickers!: api_attachment[];
+	stickers!: api_emoji[];
 
 	constructor(opts: chat_construction_opts) {
 		this.api_url = opts.api_url;
