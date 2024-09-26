@@ -1,4 +1,4 @@
-![Project logo](https://raw.githubusercontent.com/meower-media-co/api-client/main/banner.png)
+![Project logo](https://raw.githubusercontent.com/meower-media/api-client/main/banner.png)
 
 # api-client
 
