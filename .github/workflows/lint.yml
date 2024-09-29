@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.44.4
+          deno-version: 2.0.0-rc.7
       - run: deno fmt --check .
     continue-on-error: true
   lint:
@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.44.4
+          deno-version: 2.0.0-rc.7
       - run: deno lint .
     continue-on-error: true
   test:
@@ -28,6 +28,6 @@ jobs:
       - uses: actions/checkout@v3
       - uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.44.4
+          deno-version: 2.0.0-rc.7
       - run: deno test
     continue-on-error: true
